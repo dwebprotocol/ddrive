@@ -176,7 +176,7 @@ class Hyperdrive extends Nanoresource {
     })
 
     /**
-     * The first time the hyperdrive is created, we initialize both the db (metadata feed) and the content feed here.
+     * The first time the dDrive is created, we initialize both the db (metadata feed) and the content feed here.
      */
     function initialize () {
       const contentName = self.metadata.key.toString('hex') + '-content'
@@ -193,7 +193,7 @@ class Hyperdrive extends Nanoresource {
     }
 
     /**
-     * If the hyperdrive has already been created, wait for the db (metadata feed) to load.
+     * If the dDrive has already been created, wait for the db (metadata feed) to load.
      * If the metadata feed is writable, we can immediately load the content feed from its private key.
      * (Otherwise, we need to read the feed's metadata block first)
      */
