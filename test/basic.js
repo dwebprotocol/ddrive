@@ -1,5 +1,5 @@
 const tape = require('tape')
-const hypercoreCrypto = require('@ddatabase/crypto')
+const ddatabaseCrypto = require('@ddatabase/crypto')
 const Basestore = require('basestorevault')
 const ram = require('random-access-memory')
 const create = require('./helpers/create')
@@ -101,7 +101,7 @@ tape('root is always there', function (t) {
 })
 
 tape('provide keypair', function (t) {
-  const keyPair = hypercoreCrypto.keyPair()
+  const keyPair = ddatabaseCrypto.keyPair()
   var drive = create(keyPair.publicKey, { keyPair })
 
   drive.on('ready', function () {
@@ -121,7 +121,7 @@ tape('provide keypair', function (t) {
 })
 
 tape.skip('can reopen when providing a keypair', function (t) {
-  const keyPair = hypercoreCrypto.keyPair()
+  const keyPair = ddatabaseCrypto.keyPair()
   const store = new Basestore(ram)
   var drive = create(keyPair.publicKey, { keyPair, basestorevault: store })
 
@@ -132,13 +132,13 @@ tape.skip('can reopen when providing a keypair', function (t) {
 
     drive.writeFile('/hello.txt', 'world', function (err) {
       t.error(err, 'no error')
-      console.log('CORE LENGTH BEFORE CLOSE:', drive.metadata.length)
+      console.log('BASE LENGTH BEFORE CLOSE:', drive.metadata.length)
       drive.close(err => {
         t.error(err, 'no error')
         drive = create(keyPair.publicKey, { keyPair, basestorevault: store })
 
         drive.on('ready', function () {
-          console.log('CORE LENGTH:', drive.metadata.length)
+          console.log('BASE LENGTH:', drive.metadata.length)
           t.ok(drive.writable)
           t.ok(drive.metadata.writable)
           t.ok(keyPair.publicKey.equals(drive.key))
