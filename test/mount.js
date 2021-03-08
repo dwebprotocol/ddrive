@@ -637,7 +637,7 @@ test('nested mount info returns correct mount keys and paths', async t => {
   }
 })
 
-test('independent corestores do not share write capabilities', t => {
+test('independent basestores do not share write capabilities', t => {
   const r = new Replicator(t)
   const drive1 = create()
   const drive2 = create()
@@ -659,7 +659,7 @@ test('independent corestores do not share write capabilities', t => {
   })
 })
 
-test('shared corestores will share write capabilities', async t => {
+test('shared basestores will share write capabilities', async t => {
   const store = new Basestore(ram)
   store.ready(onready)
 
@@ -753,7 +753,7 @@ test('truncate within mount (with shared write capabilities)', async t => {
   }
 })
 
-test('mount replication between hyperdrives', async t => {
+test('mount replication between ddrives', async t => {
   const r = new Replicator(t)
   const store1 = new Basestore(path => ram('cs1/' + path))
   const store2 = new Basestore(path => ram('cs2/' + path))
@@ -819,7 +819,7 @@ test('mount replication between hyperdrives', async t => {
   r.end()
 })
 
-test('mount replication between hyperdrives, multiple, nested mounts', async t => {
+test('mount replication between ddrives, multiple, nested mounts', async t => {
   const r = new Replicator(t)
   const [d1, d2] = await createMountee()
   const drive = await createMounter(d1, d2)
