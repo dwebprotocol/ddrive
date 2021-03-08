@@ -1,6 +1,6 @@
 const tape = require('tape')
 const hypercoreCrypto = require('@ddatabase/crypto')
-const Corestore = require('basestorevault')
+const Basestore = require('basestorevault')
 const ram = require('random-access-memory')
 const create = require('./helpers/create')
 const Replicator = require('./helpers/replicator')
@@ -122,7 +122,7 @@ tape('provide keypair', function (t) {
 
 tape.skip('can reopen when providing a keypair', function (t) {
   const keyPair = hypercoreCrypto.keyPair()
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   var drive = create(keyPair.publicKey, { keyPair, basestorevault: store })
 
   drive.on('ready', function () {

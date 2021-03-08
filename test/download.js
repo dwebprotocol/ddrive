@@ -1,6 +1,6 @@
 const test = require('tape')
 const ram = require('random-access-memory')
-const Corestore = require('basestorevault')
+const Basestore = require('basestorevault')
 
 const Replicator = require('./helpers/replicator')
 const create = require('./helpers/create')
@@ -172,7 +172,7 @@ test('download cancellation', t => {
 
 test('download omits mounts by default', t => {
   const r = new Replicator(t)
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   var drive1, mount, drive2
 
   store.ready(() => {
@@ -224,7 +224,7 @@ test('download omits mounts by default', t => {
 
 test('download with noMounts false includes mounts', t => {
   const r = new Replicator(t)
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   var drive1, mount, drive2
 
   store.ready(() => {
@@ -397,7 +397,7 @@ test('calling mirror is idempotent', t => {
 
 test('mirroring also mirrors mounts', t => {
   const r = new Replicator(t)
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   var drive1, mount, drive2
 
   store.ready(() => {
@@ -447,7 +447,7 @@ test('mirroring also mirrors mounts', t => {
 
 test('mirroring mirrors dynamically-added mounts', t => {
   const r = new Replicator(t)
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   var drive1, mount, drive2
 
   store.ready(() => {

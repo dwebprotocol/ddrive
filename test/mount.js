@@ -1,10 +1,10 @@
 const test = require('tape')
 const ram = require('random-access-memory')
 
-const Corestore = require('basestorevault')
+const Basestore = require('basestorevault')
 const Replicator = require('./helpers/replicator')
 const create = require('./helpers/create')
-const hyperdrive = require('../')
+const ddrive = require('../')
 
 test('basic read/write to/from a mount', t => {
   const r = new Replicator(t)
@@ -292,7 +292,7 @@ test('cross-mount symlink', t => {
 })
 
 test('lists nested mounts, shared write capabilities', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   store.ready(onready)
 
   function onready () {
@@ -325,7 +325,7 @@ test('lists nested mounts, shared write capabilities', async t => {
 })
 
 test('nested mount readdir returns correct mount', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   let expected = {}
   store.ready(onready)
 
@@ -367,7 +367,7 @@ test('nested mount readdir returns correct mount', async t => {
 })
 
 test('nested mount readdir returns correct mount starting in mountpoint', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   let expected = {}
   store.ready(onready)
 
@@ -408,7 +408,7 @@ test('nested mount readdir returns correct mount starting in mountpoint', async 
 })
 
 test('nested mount readdir returns correct stat modes', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   let expected = {}
   store.ready(onready)
 
@@ -458,7 +458,7 @@ test('nested mount readdir returns correct stat modes', async t => {
 })
 
 test('nested mount readdir returns correct stat modes, non-recursive', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   let expected = {}
   store.ready(onready)
 
@@ -502,7 +502,7 @@ test('nested mount readdir returns correct stat modes, non-recursive', async t =
 })
 
 test('nested mount readdir returns correct inner paths, non-recursive', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   let expected = {}
   store.ready(onready)
 
@@ -545,7 +545,7 @@ test('nested mount readdir returns correct inner paths, non-recursive', async t 
 })
 
 test('nested mount readdir returns correct inner paths, recursive', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   let expected = {}
   store.ready(onready)
 
@@ -591,7 +591,7 @@ test('nested mount readdir returns correct inner paths, recursive', async t => {
 })
 
 test('nested mount info returns correct mount keys and paths', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   let expected = []
   store.ready(onready)
 
@@ -660,7 +660,7 @@ test('independent corestores do not share write capabilities', t => {
 })
 
 test('shared corestores will share write capabilities', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   store.ready(onready)
 
   function onready () {
@@ -689,7 +689,7 @@ test('shared corestores will share write capabilities', async t => {
 })
 
 test('can mount ddatabases', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   store.ready(onready)
 
   function onready () {
@@ -721,7 +721,7 @@ test('can mount ddatabases', async t => {
 })
 
 test('truncate within mount (with shared write capabilities)', async t => {
-  const store = new Corestore(ram)
+  const store = new Basestore(ram)
   store.ready(onready)
 
   function onready () {
@@ -755,9 +755,9 @@ test('truncate within mount (with shared write capabilities)', async t => {
 
 test('mount replication between hyperdrives', async t => {
   const r = new Replicator(t)
-  const store1 = new Corestore(path => ram('cs1/' + path))
-  const store2 = new Corestore(path => ram('cs2/' + path))
-  const store3 = new Corestore(path => ram('cs3/' + path))
+  const store1 = new Basestore(path => ram('cs1/' + path))
+  const store2 = new Basestore(path => ram('cs2/' + path))
+  const store3 = new Basestore(path => ram('cs3/' + path))
 
   await new Promise(resolve => {
     store1.ready(() => {
@@ -828,7 +828,7 @@ test('mount replication between hyperdrives, multiple, nested mounts', async t =
   r.end()
 
   function createMountee () {
-    const store = new Corestore(path => ram('cs1/' + path))
+    const store = new Basestore(path => ram('cs1/' + path))
     const drive1 = create({ basestorevault: store, namespace: 'ns1' })
     var drive2, drive3
 
@@ -869,7 +869,7 @@ test('mount replication between hyperdrives, multiple, nested mounts', async t =
   }
 
   function createMounter (d2, d3) {
-    const store = new Corestore(path => ram('cs4/' + path))
+    const store = new Basestore(path => ram('cs4/' + path))
 
     return new Promise(resolve => {
       store.ready(() => {
@@ -1216,8 +1216,8 @@ test('readdir with noMounts will not traverse mounts', async t => {
 })
 
 test('update does not clear the mount', function (t) {
-  const drive = hyperdrive(ram)
-  const other = hyperdrive(drive.basestorevault, null, { namespace: 'test' })
+  const drive = ddrive(ram)
+  const other = ddrive(drive.basestorevault, null, { namespace: 'test' })
 
   other.writeFile('/foo', 'bar', function (err) {
     t.error(err, 'no error')

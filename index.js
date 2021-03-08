@@ -15,7 +15,7 @@ const baseByteStream = require('@ddatabase/byte-stream')
 const Nanoresource = require('nanoresource/emitter')
 const DDatabaseProtocol = require('@ddatabase/protocol')
 const MountableDWebTrie = require('mountable-dwebtrie')
-const Corestore = require('basestorevault')
+const Basestore = require('basestorevault')
 const { Stat } = require('@ddrive/schemas')
 
 const createFileDescriptor = require('./lib/fd')
@@ -53,7 +53,7 @@ class DDrive extends Nanoresource {
     this.live = true
     this.sparse = opts.sparse !== false
     this.sparseMetadata = opts.sparseMetadata !== false
-    this.subtype = opts.subtype || 'hyperdrive'
+    this.subtype = opts.subtype || 'ddrive'
 
     this.promises = new DDrivePromises(this)
 
@@ -975,13 +975,13 @@ class DDrive extends Nanoresource {
     if (this._unmirror) return this._unmirror
     const mirrorRanges = new Map()
 
-    this.on('content-feed', oncore)
-    this.on('metadata-feed', oncore)
+    this.on('content-feed', onbase)
+    this.on('metadata-feed', onbase)
     this.getAllMounts({ content: true }, (err, mounts) => {
       if (err) return this.emit('error', err)
       for (const { metadata, content } of mounts.values()) {
-        oncore(metadata)
-        oncore(content)
+        onbase(metadata)
+        onbase(content)
       }
     })
 
@@ -991,14 +991,14 @@ class DDrive extends Nanoresource {
     function unmirror () {
       if (!self._unmirror) return
       self._unmirror = null
-      self.removeListener('content-feed', oncore)
-      self.removeListener('metadata-feed', oncore)
+      self.removeListener('content-feed', onbase)
+      self.removeListener('metadata-feed', onbase)
       for (const [ core, range ] of mirrorRanges) {
         core.undownload(range)
       }
     }
 
-    function oncore (core) {
+    function onbase (core) {
       if (!core) return
       if (!self._unmirror || self._unmirror !== unmirror || mirrorRanges.has(core)) return
       mirrorRanges.set(core, core.download({ start: 0, end: -1 }))
@@ -1153,13 +1153,13 @@ class DDrive extends Nanoresource {
         this.emit('content-feed', core)
         statOpts.size = core.byteLength
         statOpts.blocks = core.length
-        return mountCore()
+        return mountBase()
       })
     } else {
       return process.nextTick(mountTrie, null)
     }
 
-    function mountCore () {
+    function mountBase () {
       self._createStat(path, statOpts, (err, st) => {
         if (err) return cb(err)
         return self.db.put(path, st.encode(), cb)
