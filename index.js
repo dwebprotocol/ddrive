@@ -398,7 +398,7 @@ class DDrive extends Nanoresource {
       if (err) return stream.destroy(err)
       return this.stat(name, { file: true }, (err, st, trie) => {
         if (err) return stream.destroy(err)
-        if (st.mount && st.mount.hypercore) {
+        if (st.mount && st.mount.ddatabase) {
           const feed = self.basestorevault.get({
             key: st.mount.key,
             sparse: self.sparse
@@ -417,7 +417,7 @@ class DDrive extends Nanoresource {
     })
 
     function oncontent (st, contentState) {
-      if (st.mount && st.mount.hypercore) {
+      if (st.mount && st.mount.ddatabase) {
         var byteOffset = 0
         var blockOffset = 0
         var blockLength = st.blocks
@@ -923,7 +923,7 @@ class DDrive extends Nanoresource {
             total.blocks = stat.blocks
             total.size = stat.size
             total.downloadedBlocks = downloadedBlocks
-            // TODO: This is not possible to implement now. Need a better byte length index in hypercore.
+            // TODO: This is not possible to implement now. Need a better byte length index in ddatabase.
             // total.downloadedBytes = 0
             return cb(null, total)
           })
@@ -1137,11 +1137,11 @@ class DDrive extends Nanoresource {
       key,
       version: opts.version,
       hash: opts.hash,
-      hypercore: !!opts.hypercore
+      ddatabase: !!opts.ddatabase
     }
-    statOpts.directory = !opts.hypercore
+    statOpts.directory = !opts.ddatabase
 
-    if (opts.hypercore) {
+    if (opts.ddatabase) {
       const base = this.basestorevault.get({
         key,
         ...opts,
@@ -1180,7 +1180,7 @@ class DDrive extends Nanoresource {
     this.stat(path, (err, st) => {
       if (err) return cb(err)
       if (!st.mount) return cb(new Error('Can only unmount mounts.'))
-      if (st.mount.hypercore) {
+      if (st.mount.ddatabase) {
         return this.unlink(path, cb)
       } else {
         return this.db.unmount(path, cb)

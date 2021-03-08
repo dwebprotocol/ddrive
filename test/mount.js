@@ -709,7 +709,7 @@ test('can mount ddatabases', async t => {
   }
 
   function onappend (drive, base) {
-    drive.mount('/a', base.key, { hypercore: true }, err => {
+    drive.mount('/a', base.key, { ddatabase: true }, err => {
       t.error(err, 'no error')
       drive.readFile('/a', (err, contents) => {
         t.error(err, 'no error')
@@ -753,7 +753,7 @@ test('truncate within mount (with shared write capabilities)', async t => {
   }
 })
 
-test('mount replication between ddrives', async t => {
+test('mount replication between hyperdrives', async t => {
   const r = new Replicator(t)
   const store1 = new Basestore(path => ram('cs1/' + path))
   const store2 = new Basestore(path => ram('cs2/' + path))
@@ -819,7 +819,7 @@ test('mount replication between ddrives', async t => {
   r.end()
 })
 
-test('mount replication between ddrives, multiple, nested mounts', async t => {
+test('mount replication between hyperdrives, multiple, nested mounts', async t => {
   const r = new Replicator(t)
   const [d1, d2] = await createMountee()
   const drive = await createMounter(d1, d2)
