@@ -34,7 +34,7 @@ const NOOP_FILE_PATH = ' '
 module.exports = DDriveCompat
 module.exports.constants = require('filesystem-constants').linux
 
-class Hyperdrive extends Nanoresource {
+class DDrive extends Nanoresource {
   constructor (storage, key, opts) {
     super()
     this._initialize(storage, key, opts)
@@ -442,7 +442,7 @@ class Hyperdrive extends Nanoresource {
   }
 
   createDiffStream (other, prefix, opts) {
-    if (other instanceof Hyperdrive) other = other.version
+    if (other instanceof DDrive) other = other.version
     if (typeof prefix === 'object') return this.createDiffStream(other, '/', prefix)
     prefix = prefix || '/'
 
@@ -842,7 +842,7 @@ class Hyperdrive extends Nanoresource {
       _db: this.db.checkout(version),
       _contentStates: this._contentStates,
     }
-    return new Hyperdrive(this.basestorevault, this.key, opts)
+    return new DDrive(this.basestorevault, this.key, opts)
   }
 
   _closeFile (fd, cb) {
@@ -1275,9 +1275,9 @@ class Hyperdrive extends Nanoresource {
 function DDriveCompat (...args) {
   if (!(this instanceof DDriveCompat)) return new DDriveCompat(...args)
   Nanoresource.call(this)
-  Hyperdrive.prototype._initialize.call(this, ...args)
+  DDrive.prototype._initialize.call(this, ...args)
 }
-Object.setPrototypeOf(DDriveCompat.prototype, Hyperdrive.prototype)
+Object.setPrototypeOf(DDriveCompat.prototype, DDrive.prototype)
 
 function isObject (val) {
   return !!val && typeof val !== 'string' && !Buffer.isBuffer(val)

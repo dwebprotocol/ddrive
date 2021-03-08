@@ -688,7 +688,7 @@ test('shared corestores will share write capabilities', async t => {
   }
 })
 
-test('can mount hypercores', async t => {
+test('can mount ddatabases', async t => {
   const store = new Corestore(ram)
   store.ready(onready)
 

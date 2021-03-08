@@ -1,5 +1,5 @@
 /**
- * A promisified version of the Hyperdrive API
+ * A promisified version of the DDrive API
  *
  * Note: The promises API does not currently include file descriptor operations.
 */
