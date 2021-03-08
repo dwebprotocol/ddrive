@@ -993,15 +993,15 @@ class DDrive extends Nanoresource {
       self._unmirror = null
       self.removeListener('content-feed', onbase)
       self.removeListener('metadata-feed', onbase)
-      for (const [ core, range ] of mirrorRanges) {
-        core.undownload(range)
+      for (const [ base, range ] of mirrorRanges) {
+        base.undownload(range)
       }
     }
 
-    function onbase (core) {
-      if (!core) return
-      if (!self._unmirror || self._unmirror !== unmirror || mirrorRanges.has(core)) return
-      mirrorRanges.set(core, core.download({ start: 0, end: -1 }))
+    function onbase (base) {
+      if (!base) return
+      if (!self._unmirror || self._unmirror !== unmirror || mirrorRanges.has(base)) return
+      mirrorRanges.set(base, base.download({ start: 0, end: -1 }))
     }
   }
 
@@ -1142,17 +1142,17 @@ class DDrive extends Nanoresource {
     statOpts.directory = !opts.hypercore
 
     if (opts.hypercore) {
-      const core = this.basestorevault.get({
+      const base = this.basestorevault.get({
         key,
         ...opts,
         parents: [this.key],
         sparse: this.sparse
       })
-      core.ready(err => {
+      base.ready(err => {
         if (err) return cb(err)
-        this.emit('content-feed', core)
-        statOpts.size = core.byteLength
-        statOpts.blocks = core.length
+        this.emit('content-feed', base)
+        statOpts.size = base.byteLength
+        statOpts.blocks = base.length
         return mountBase()
       })
     } else {

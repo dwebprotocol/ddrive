@@ -27,7 +27,7 @@ npm install ddrive
 
 ## Usage
 
-dDrive aims to implement the same API as Node.js' core `fs` module, and mirrors many POSIX APIs.
+dDrive aims to implement the same API as Node.js' base `fs` module, and mirrors many POSIX APIs.
 
 ``` js
 var ddrive = require('ddrive')

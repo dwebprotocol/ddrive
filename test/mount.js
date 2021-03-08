@@ -694,22 +694,22 @@ test('can mount ddatabases', async t => {
 
   function onready () {
     const drive = create({ basestorevault: store })
-    var core = store.get()
+    var base = store.get()
 
     drive.ready(err => {
       t.error(err, 'no error')
-      core.ready(err => {
+      base.ready(err => {
         t.error(err, 'no error')
-        core.append('hello', err => {
+        base.append('hello', err => {
           t.error(err, 'no error')
-          return onappend(drive, core)
+          return onappend(drive, base)
         })
       })
     })
   }
 
-  function onappend (drive, core) {
-    drive.mount('/a', core.key, { hypercore: true }, err => {
+  function onappend (drive, base) {
+    drive.mount('/a', base.key, { hypercore: true }, err => {
       t.error(err, 'no error')
       drive.readFile('/a', (err, contents) => {
         t.error(err, 'no error')
