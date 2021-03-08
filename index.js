@@ -11,18 +11,18 @@ const pump = require('pump')
 const pumpify = require('pumpify')
 const { Transform } = require('streamx')
 
-const coreByteStream = require('@ddatabase/byte-stream')
+const baseByteStream = require('@ddatabase/byte-stream')
 const Nanoresource = require('nanoresource/emitter')
-const HypercoreProtocol = require('@ddatabase/protocol')
-const MountableHypertrie = require('mountable-dwebtrie')
+const DDatabaseProtocol = require('@ddatabase/protocol')
+const MountableDWebTrie = require('mountable-dwebtrie')
 const Corestore = require('basestorevault')
 const { Stat } = require('@ddrive/schemas')
 
 const createFileDescriptor = require('./lib/fd')
 const errors = require('./lib/errors')
-const defaultCorestore = require('./lib/storage')
+const defaultBasestore = require('./lib/storage')
 const TagManager = require('./lib/tagging')
-const HyperdrivePromises = require('./promises')
+const DDrivePromises = require('./promises')
 const { contentKeyPair, contentOptions, ContentState } = require('./lib/content')
 const { statIterator, createStatStream, createMountStream, createReaddirStream, readdirIterator } = require('./lib/iterator')
 
@@ -31,7 +31,7 @@ const STDIO_CAP = 20
 const WRITE_STREAM_BLOCK_SIZE = 524288
 const NOOP_FILE_PATH = ' '
 
-module.exports = HyperdriveCompat
+module.exports = DDriveCompat
 module.exports.constants = require('filesystem-constants').linux
 
 class Hyperdrive extends Nanoresource {
@@ -55,10 +55,10 @@ class Hyperdrive extends Nanoresource {
     this.sparseMetadata = opts.sparseMetadata !== false
     this.subtype = opts.subtype || 'hyperdrive'
 
-    this.promises = new HyperdrivePromises(this)
+    this.promises = new DDrivePromises(this)
 
     this._namespace = opts.namespace
-    this.basestorevault = defaultCorestore(storage, {
+    this.basestorevault = defaultBasestore(storage, {
       ...opts,
       valueEncoding: 'binary',
       // TODO: Support mixed sparsity.
@@ -104,7 +104,7 @@ class Hyperdrive extends Nanoresource {
   }
 
   get version () {
-    // TODO: The trie version starts at 1, so the empty hyperdrive version is also 1. This should be 0.
+    // TODO: The trie version starts at 1, so the empty dDrive version is also 1. This should be 0.
     return this.db.version
   }
 
@@ -127,13 +127,13 @@ class Hyperdrive extends Nanoresource {
     return this.basestorevault.ready(err => {
       if (err) return cb(err)
       this.metadata = this.basestorevault.default(this._metadataOpts)
-      this.db = this.db || new MountableHypertrie(this.basestorevault, this.key, {
+      this.db = this.db || new MountableDWebTrie(this.basestorevault, this.key, {
         feed: this.metadata,
         sparse: this.sparseMetadata,
         extension: this.opts.extension !== false,
         subtype: this.subtype
       })
-      this.db.on('dwebtrie', onhypertrie)
+      this.db.on('dwebtrie', ondwebtrie)
       this.db.on('error', onerror)
 
       self.metadata.on('error', onerror)
@@ -145,7 +145,7 @@ class Hyperdrive extends Nanoresource {
 
       this._unlistens.push(() => {
         self.db.removeListener('error', onerror)
-        self.db.removeListener('dwebtrie', onhypertrie)
+        self.db.removeListener('dwebtrie', ondwebtrie)
         self.metadata.removeListener('error', onerror)
         self.metadata.removeListener('append', update)
         self.metadata.removeListener('extension', extension)
@@ -240,7 +240,7 @@ class Hyperdrive extends Nanoresource {
       self.emit('peer-remove', peer)
     }
 
-    function onhypertrie (trie) {
+    function ondwebtrie (trie) {
       self.emit('metadata-feed', trie.feed)
       self.emit('mount', trie)
     }
@@ -251,7 +251,7 @@ class Hyperdrive extends Nanoresource {
   }
 
   _contentStateFromMetadata (metadata, cb) {
-    MountableHypertrie.getMetadata(metadata, (err, publicKey) => {
+    MountableDWebTrie.getMetadata(metadata, (err, publicKey) => {
       if (err) return cb(err)
       this._contentStateFromKey(publicKey, cb)
     })
@@ -389,7 +389,7 @@ class Hyperdrive extends Nanoresource {
     name = fixName(name)
 
     const length = typeof opts.end === 'number' ? 1 + opts.end - (opts.start || 0) : typeof opts.length === 'number' ? opts.length : -1
-    const stream = coreByteStream({
+    const stream = baseByteStream({
       ...opts,
       highWaterMark: opts.highWaterMark || 64 * 1024
     })
@@ -685,9 +685,9 @@ class Hyperdrive extends Nanoresource {
       if (err) return cb(err)
       if (name !== '/' && !st) return cb(new errors.FileNotFound(name))
       if (name === '/') return cb(null, Stat.directory(), this.db)
-      const trie = st[MountableHypertrie.Symbols.TRIE]
-      const mount = st[MountableHypertrie.Symbols.MOUNT]
-      const innerPath = st[MountableHypertrie.Symbols.INNER_PATH]
+      const trie = st[MountableDWebTrie.Symbols.TRIE]
+      const mount = st[MountableDWebTrie.Symbols.MOUNT]
+      const innerPath = st[MountableDWebTrie.Symbols.INNER_PATH]
       try {
         st = Stat.decode(st.value)
       } catch (err) {
@@ -828,7 +828,7 @@ class Hyperdrive extends Nanoresource {
       opts = isInitiator
       isInitiator = !!opts.initiator
     }
-    const stream = (opts && opts.stream) || new HypercoreProtocol(isInitiator, { ...opts })
+    const stream = (opts && opts.stream) || new DDatabaseProtocol(isInitiator, { ...opts })
     this.ready(err => {
       if (err) return stream.destroy(err)
       this.basestorevault.replicate(isInitiator, { ...opts, stream })
@@ -1272,12 +1272,12 @@ class Hyperdrive extends Nanoresource {
   }
 }
 
-function HyperdriveCompat (...args) {
-  if (!(this instanceof HyperdriveCompat)) return new HyperdriveCompat(...args)
+function DDriveCompat (...args) {
+  if (!(this instanceof DDriveCompat)) return new DDriveCompat(...args)
   Nanoresource.call(this)
   Hyperdrive.prototype._initialize.call(this, ...args)
 }
-Object.setPrototypeOf(HyperdriveCompat.prototype, Hyperdrive.prototype)
+Object.setPrototypeOf(DDriveCompat.prototype, Hyperdrive.prototype)
 
 function isObject (val) {
   return !!val && typeof val !== 'string' && !Buffer.isBuffer(val)

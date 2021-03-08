@@ -4,7 +4,7 @@
  * Note: The promises API does not currently include file descriptor operations.
 */
 
-module.exports = class HyperdrivePromises {
+module.exports = class DDrivePromises {
   constructor (drive) {
     this.drive = drive
   }
