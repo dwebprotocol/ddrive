@@ -11,12 +11,12 @@ const pump = require('pump')
 const pumpify = require('pumpify')
 const { Transform } = require('streamx')
 
-const coreByteStream = require('hypercore-byte-stream')
+const coreByteStream = require('@ddatabase/byte-stream')
 const Nanoresource = require('nanoresource/emitter')
-const HypercoreProtocol = require('hypercore-protocol')
-const MountableHypertrie = require('mountable-hypertrie')
-const Corestore = require('corestore')
-const { Stat } = require('hyperdrive-schemas')
+const HypercoreProtocol = require('@ddatabase/protocol')
+const MountableHypertrie = require('mountable-dwebtrie')
+const Corestore = require('basestorevault')
+const { Stat } = require('@ddrive/schemas')
 
 const createFileDescriptor = require('./lib/fd')
 const errors = require('./lib/errors')
@@ -58,7 +58,7 @@ class Hyperdrive extends Nanoresource {
     this.promises = new HyperdrivePromises(this)
 
     this._namespace = opts.namespace
-    this.corestore = defaultCorestore(storage, {
+    this.basestorevault = defaultCorestore(storage, {
       ...opts,
       valueEncoding: 'binary',
       // TODO: Support mixed sparsity.
@@ -66,9 +66,9 @@ class Hyperdrive extends Nanoresource {
       extensions: opts.extensions
     })
 
-    if (this.corestore !== storage) this.corestore.on('error', err => this.emit('error', err))
+    if (this.basestorevault !== storage) this.basestorevault.on('error', err => this.emit('error', err))
     if (opts.namespace) {
-      this.corestore = this.corestore.namespace(opts.namespace)
+      this.basestorevault = this.basestorevault.namespace(opts.namespace)
     }
 
     // Set in ready.
@@ -124,16 +124,16 @@ class Hyperdrive extends Nanoresource {
 
   _open (cb) {
     const self = this
-    return this.corestore.ready(err => {
+    return this.basestorevault.ready(err => {
       if (err) return cb(err)
-      this.metadata = this.corestore.default(this._metadataOpts)
-      this.db = this.db || new MountableHypertrie(this.corestore, this.key, {
+      this.metadata = this.basestorevault.default(this._metadataOpts)
+      this.db = this.db || new MountableHypertrie(this.basestorevault, this.key, {
         feed: this.metadata,
         sparse: this.sparseMetadata,
         extension: this.opts.extension !== false,
         subtype: this.subtype
       })
-      this.db.on('hypertrie', onhypertrie)
+      this.db.on('dwebtrie', onhypertrie)
       this.db.on('error', onerror)
 
       self.metadata.on('error', onerror)
@@ -145,7 +145,7 @@ class Hyperdrive extends Nanoresource {
 
       this._unlistens.push(() => {
         self.db.removeListener('error', onerror)
-        self.db.removeListener('hypertrie', onhypertrie)
+        self.db.removeListener('dwebtrie', onhypertrie)
         self.metadata.removeListener('error', onerror)
         self.metadata.removeListener('append', update)
         self.metadata.removeListener('extension', extension)
@@ -265,7 +265,7 @@ class Hyperdrive extends Nanoresource {
     const contentOpts = { ...opts, ...contentOptions(this), cache: { data: false } }
     
     try {
-      var feed = this.corestore.get(contentOpts)
+      var feed = this.basestorevault.get(contentOpts)
     } catch (err) {
       return cb(err)
     }
@@ -399,7 +399,7 @@ class Hyperdrive extends Nanoresource {
       return this.stat(name, { file: true }, (err, st, trie) => {
         if (err) return stream.destroy(err)
         if (st.mount && st.mount.hypercore) {
-          const feed = self.corestore.get({
+          const feed = self.basestorevault.get({
             key: st.mount.key,
             sparse: self.sparse
           })
@@ -831,7 +831,7 @@ class Hyperdrive extends Nanoresource {
     const stream = (opts && opts.stream) || new HypercoreProtocol(isInitiator, { ...opts })
     this.ready(err => {
       if (err) return stream.destroy(err)
-      this.corestore.replicate(isInitiator, { ...opts, stream })
+      this.basestorevault.replicate(isInitiator, { ...opts, stream })
     })
     return stream
   }
@@ -842,7 +842,7 @@ class Hyperdrive extends Nanoresource {
       _db: this.db.checkout(version),
       _contentStates: this._contentStates,
     }
-    return new Hyperdrive(this.corestore, this.key, opts)
+    return new Hyperdrive(this.basestorevault, this.key, opts)
   }
 
   _closeFile (fd, cb) {
@@ -1142,7 +1142,7 @@ class Hyperdrive extends Nanoresource {
     statOpts.directory = !opts.hypercore
 
     if (opts.hypercore) {
-      const core = this.corestore.get({
+      const core = this.basestorevault.get({
         key,
         ...opts,
         parents: [this.key],

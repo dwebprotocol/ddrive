@@ -6,5 +6,5 @@ module.exports = function (key, opts) {
     opts = key
     key = null
   }
-  return new Hyperdrive((opts && opts.corestore) || ram, key, opts)
+  return new Hyperdrive((opts && opts.basestorevault) || ram, key, opts)
 }
