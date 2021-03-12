@@ -1,6 +1,6 @@
 const test = require('tape')
 const ram = require('random-access-memory')
-const Basestore = require('basestorevault')
+const Basestore = require('basestorex')
 
 const Replicator = require('./helpers/replicator')
 const create = require('./helpers/create')

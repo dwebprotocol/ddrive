@@ -15,7 +15,7 @@ const baseByteStream = require('@ddatabase/byte-stream')
 const Nanoresource = require('nanoresource/emitter')
 const DDatabaseProtocol = require('@ddatabase/protocol')
 const MountableDWebTrie = require('mountable-dwebtrie')
-const Basestore = require('basestorevault')
+const Basestore = require('basestorex')
 const { Stat } = require('@ddrive/schemas')
 
 const createFileDescriptor = require('./lib/fd')
@@ -58,7 +58,7 @@ class DDrive extends Nanoresource {
     this.promises = new DDrivePromises(this)
 
     this._namespace = opts.namespace
-    this.basestorevault = defaultBasestore(storage, {
+    this.basestore = defaultBasestore(storage, {
       ...opts,
       valueEncoding: 'binary',
       // TODO: Support mixed sparsity.
@@ -66,9 +66,9 @@ class DDrive extends Nanoresource {
       extensions: opts.extensions
     })
 
-    if (this.basestorevault !== storage) this.basestorevault.on('error', err => this.emit('error', err))
+    if (this.basestore !== storage) this.basestore.on('error', err => this.emit('error', err))
     if (opts.namespace) {
-      this.basestorevault = this.basestorevault.namespace(opts.namespace)
+      this.basestore = this.basestore.namespace(opts.namespace)
     }
 
     // Set in ready.
@@ -124,10 +124,10 @@ class DDrive extends Nanoresource {
 
   _open (cb) {
     const self = this
-    return this.basestorevault.ready(err => {
+    return this.basestore.ready(err => {
       if (err) return cb(err)
-      this.metadata = this.basestorevault.default(this._metadataOpts)
-      this.db = this.db || new MountableDWebTrie(this.basestorevault, this.key, {
+      this.metadata = this.basestore.default(this._metadataOpts)
+      this.db = this.db || new MountableDWebTrie(this.basestore, this.key, {
         feed: this.metadata,
         sparse: this.sparseMetadata,
         extension: this.opts.extension !== false,
@@ -265,7 +265,7 @@ class DDrive extends Nanoresource {
     const contentOpts = { ...opts, ...contentOptions(this), cache: { data: false } }
     
     try {
-      var feed = this.basestorevault.get(contentOpts)
+      var feed = this.basestore.get(contentOpts)
     } catch (err) {
       return cb(err)
     }
@@ -399,7 +399,7 @@ class DDrive extends Nanoresource {
       return this.stat(name, { file: true }, (err, st, trie) => {
         if (err) return stream.destroy(err)
         if (st.mount && st.mount.ddatabase) {
-          const feed = self.basestorevault.get({
+          const feed = self.basestore.get({
             key: st.mount.key,
             sparse: self.sparse
           })
@@ -831,7 +831,7 @@ class DDrive extends Nanoresource {
     const stream = (opts && opts.stream) || new DDatabaseProtocol(isInitiator, { ...opts })
     this.ready(err => {
       if (err) return stream.destroy(err)
-      this.basestorevault.replicate(isInitiator, { ...opts, stream })
+      this.basestore.replicate(isInitiator, { ...opts, stream })
     })
     return stream
   }
@@ -842,7 +842,7 @@ class DDrive extends Nanoresource {
       _db: this.db.checkout(version),
       _contentStates: this._contentStates,
     }
-    return new DDrive(this.basestorevault, this.key, opts)
+    return new DDrive(this.basestore, this.key, opts)
   }
 
   _closeFile (fd, cb) {
@@ -1142,7 +1142,7 @@ class DDrive extends Nanoresource {
     statOpts.directory = !opts.ddatabase
 
     if (opts.ddatabase) {
-      const base = this.basestorevault.get({
+      const base = this.basestore.get({
         key,
         ...opts,
         parents: [this.key],

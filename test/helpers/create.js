@@ -6,5 +6,5 @@ module.exports = function (key, opts) {
     opts = key
     key = null
   }
-  return new DDrive((opts && opts.basestorevault) || ram, key, opts)
+  return new DDrive((opts && opts.basestore) || ram, key, opts)
 }

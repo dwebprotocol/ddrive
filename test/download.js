@@ -1,6 +1,6 @@
 const test = require('tape')
 const ram = require('random-access-memory')
-const Basestore = require('basestorevault')
+const Basestore = require('basestorex')
 
 const Replicator = require('./helpers/replicator')
 const create = require('./helpers/create')
@@ -176,8 +176,8 @@ test('download omits mounts by default', t => {
   var drive1, mount, drive2
 
   store.ready(() => {
-    drive1 = create({ basestorevault: store, namespace: 'd1' })
-    mount = create({ basestorevault: store, namespace: 'd2' })
+    drive1 = create({ basestore: store, namespace: 'd1' })
+    mount = create({ basestore: store, namespace: 'd2' })
     drive1.ready(() => {
       mount.ready(() => {
         drive2 = create(drive1.key)
@@ -228,8 +228,8 @@ test('download with noMounts false includes mounts', t => {
   var drive1, mount, drive2
 
   store.ready(() => {
-    drive1 = create({ basestorevault: store, namespace: 'd1' })
-    mount = create({ basestorevault: store, namespace: 'd2' })
+    drive1 = create({ basestore: store, namespace: 'd1' })
+    mount = create({ basestore: store, namespace: 'd2' })
     drive1.ready(() => {
       mount.ready(() => {
         drive2 = create(drive1.key)
@@ -401,8 +401,8 @@ test('mirroring also mirrors mounts', t => {
   var drive1, mount, drive2
 
   store.ready(() => {
-    drive1 = create({ basestorevault: store, namespace: 'd1' })
-    mount = create({ basestorevault: store, namespace: 'd2' })
+    drive1 = create({ basestore: store, namespace: 'd1' })
+    mount = create({ basestore: store, namespace: 'd2' })
     drive1.ready(() => {
       mount.ready(() => {
         drive2 = create(drive1.key)
@@ -451,8 +451,8 @@ test('mirroring mirrors dynamically-added mounts', t => {
   var drive1, mount, drive2
 
   store.ready(() => {
-    drive1 = create({ basestorevault: store, namespace: 'd1' })
-    mount = create({ basestorevault: store, namespace: 'd2' })
+    drive1 = create({ basestore: store, namespace: 'd1' })
+    mount = create({ basestore: store, namespace: 'd2' })
     drive1.ready(() => {
       mount.ready(() => {
         drive2 = create(drive1.key)

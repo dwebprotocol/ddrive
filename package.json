@@ -1,6 +1,6 @@
 {
   "name": "ddrive",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "dDrive is a secure, real-time distributed file system for the dWeb.",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "homepage": "https://dwebx.org",
   "dependencies": {
     "byte-stream": "^2.1.0",
-    "basestorevault": "^1.0.1",
+    "basestorex": "^1.0.0",
     "custom-error-class": "^1.0.0",
     "duplexify": "^3.7.1",
     "filesystem-constants": "^1.0.0",

@@ -1,6 +1,6 @@
 const tape = require('tape')
 const ddatabaseCrypto = require('@ddatabase/crypto')
-const Basestore = require('basestorevault')
+const Basestore = require('basestorex')
 const ram = require('random-access-memory')
 const create = require('./helpers/create')
 const Replicator = require('./helpers/replicator')
@@ -123,7 +123,7 @@ tape('provide keypair', function (t) {
 tape.skip('can reopen when providing a keypair', function (t) {
   const keyPair = ddatabaseCrypto.keyPair()
   const store = new Basestore(ram)
-  var drive = create(keyPair.publicKey, { keyPair, basestorevault: store })
+  var drive = create(keyPair.publicKey, { keyPair, basestore: store })
 
   drive.on('ready', function () {
     t.ok(drive.writable)
@@ -135,7 +135,7 @@ tape.skip('can reopen when providing a keypair', function (t) {
       console.log('BASE LENGTH BEFORE CLOSE:', drive.metadata.length)
       drive.close(err => {
         t.error(err, 'no error')
-        drive = create(keyPair.publicKey, { keyPair, basestorevault: store })
+        drive = create(keyPair.publicKey, { keyPair, basestore: store })
 
         drive.on('ready', function () {
           console.log('BASE LENGTH:', drive.metadata.length)
