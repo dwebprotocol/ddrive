@@ -1,6 +1,6 @@
 {
   "name": "ddrive",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "dDrive is a secure, real-time distributed file system for the dWeb.",
   "main": "index.js",
   "scripts": {

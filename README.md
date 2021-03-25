@@ -452,7 +452,7 @@ Create a stream containing content/metadata feeds for all mounted dDrives. Each 
 
 #### `drive.getAllMounts(opts, cb)`
 
-Returns a Map of the content/metadata feeds for all mounted Hyperdrives, keyed by their mountpoints. The results will always include the top-level feeds (with key '/').
+Returns a Map of the content/metadata feeds for all mounted DDrives, keyed by their mountpoints. The results will always include the top-level feeds (with key '/').
 
 Options include:
 ```js
